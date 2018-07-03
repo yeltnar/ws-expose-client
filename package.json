@@ -5,8 +5,8 @@
   "main": "client.ts",
   "scripts": {
     "test": "clear;nodemon;",
-    "start": "tsc client --outDir build; pm2 start build/client.js; pm2 logs",
-    "preinstall": "npm i -g typescript; npm i -g ts-node; npm i -g pm2; pm2 startup"
+    "start": "pm2 start build/client.js; pm2 logs",
+    "preinstall": "npm i -g typescript; npm i -g ts-node; npm i -g pm2; tsc client --outDir build;pm2 startup"
   },
   "author": "Andrew Brantley",
   "license": "ISC",
