@@ -2,7 +2,9 @@
     "device_name":"test_device",
     "device_group":"test_group",
     "ws":{
-        "url":"ws://127.0.0.1:3000/",
-        "group":"first_test_group"
+        // "url":"ws://127.0.0.1:3000/",
+        "url":"ws://ws-expose.mybluemix.net/",
+        "group":"first_test_group",
+        "token":"token2"
     }
 }

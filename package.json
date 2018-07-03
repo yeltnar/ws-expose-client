@@ -4,7 +4,9 @@
   "description": "",
   "main": "client.ts",
   "scripts": {
-    "test": "clear;nodemon;"
+    "test": "clear;nodemon;",
+    "start": "tsc client --outDir build; pm2 start build/client.js; pm2 logs",
+    "preinstall": "npm i -g typescript; npm i -g ts-node; npm i -g pm2; pm2 startup"
   },
   "author": "Andrew Brantley",
   "license": "ISC",
@@ -12,11 +14,14 @@
     "ext": "ts",
     "ignore": [
       "test/*",
+      "build/*",
       "docs/*"
     ],
-    "delay": "100"
+    "delay": "100",
+    "exec": "ts-node client"
   },
   "dependencies": {
+    "@types/node": "^10.5.1",
     "config": "^1.30.0",
     "ws": "^5.2.1"
   }

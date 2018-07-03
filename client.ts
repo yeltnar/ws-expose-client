@@ -1,57 +1,68 @@
+import ws_parser from "./ws_parser";
+
 const WebSocket = require('ws');
 const config = require('config');
 
 let ws;
-let token = "token";
+let token = config.ws.token;
 
 startSocketConnection();
 
 function startSocketConnection() {
-    let connectInterval;
-
-    connectInterval = setInterval(doStartConnection, 5000)
+    //let connectInterval = setInterval(doStartConnection, 5000)
     doStartConnection(); 
 
     function doStartConnection(){
 
-        ws = new WebSocket(config.ws.url);
+        try{
+            ws = new WebSocket(config.ws.url);
+        }catch( e ){
+            doStartConnection()
+        }
 
         if(!ws){return}
 
         ws.on('open', () => {
-            clearInterval(connectInterval);
-            send_to_ws();
-            console.log("connected!")
+            //clearInterval(connectInterval);
+            send_to_ws({});
+            console.log("connected to "+config.ws.url);
         });
 
-        ws.on('message', (data) => {
+        ws.on('message', async(data) => {
             try{
+                
                 data = JSON.parse(data);
-            }catch(e){console.error(e);}
+                data.result = await ws_parser.parseObj(data);
+                send_to_ws(data);
 
-            //console.log(data);
-            send_to_ws(data);
+            }catch(e){console.error(e);}
         });
 
         ws.on('close', () => {
             console.log('disconnected');
-
-            
+            //startSocketConnection()
+            setTimeout(doStartConnection, 1000)
         });
     }
 }
 
-function send_to_ws(obj = {}) {
+function send_to_ws(obj:any) {
 
     if (typeof obj !== 'object') {
         throw "send_to_ws obj must be an object";
     }
 
-    obj.response_device = { 
-        device_name: config.device_name, 
-        device_group: config.device_group, 
-        token:token 
-    };
+    try{
+        obj.response_device = obj.response_device || {};
+
+        obj.response_device = { 
+            device_name: config.device_name, 
+            device_group: config.device_group, 
+            token:token 
+        };
+    }catch(e){
+        console.log(e);
+    }
 
     ws.send(JSON.stringify(obj));
 }
