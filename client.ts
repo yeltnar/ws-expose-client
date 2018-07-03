@@ -25,7 +25,7 @@ function startSocketConnection() {
         ws.on('open', () => {
             //clearInterval(connectInterval);
             send_to_ws({});
-            console.log("connected to "+config.ws.url);
+            console.log("connected "+config.ws.url+" "+(new Date().toString()));
         });
 
         ws.on('message', async(data) => {
@@ -39,7 +39,7 @@ function startSocketConnection() {
         });
 
         ws.on('close', () => {
-            console.log('disconnected');
+            console.log('disconnected '+(new Date().toString()));
             //startSocketConnection()
             setTimeout(doStartConnection, 1000)
         });
