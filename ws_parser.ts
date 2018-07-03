@@ -5,10 +5,9 @@ const serverless_folder = config.serverless_folder;
 
 async function parseObj(obj) {
     let pathName = obj.request._parsedUrl.pathname;
-    let toReturn:any = "seeded";
+    let toReturn:any = "nothing set";
 
-    if (/dash-trip-ended/) {
-        toReturn = "hell yeah"
+    if ( /dash-trip-ended/.test(pathName) ) {
 
         let toExec = "ts-node "+serverless_folder+"template.ts"
         let options = "";
