@@ -17,6 +17,7 @@ async function parseObj(obj) {
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
+            obj.errors.runShell = e;
             console.error(e);
         }
     }
@@ -30,6 +31,7 @@ async function parseObj(obj) {
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
+            obj.errors.runShell = e;
             console.error(e);
         }
     }
@@ -43,6 +45,7 @@ async function parseObj(obj) {
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
+            obj.errors.runShell = e;
             console.error(e);
         }
     }
@@ -56,6 +59,7 @@ async function parseObj(obj) {
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
+            obj.errors.runShell = e;
             console.error(e);
         }
     }
