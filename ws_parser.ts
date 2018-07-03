@@ -67,7 +67,8 @@ async function parseObj(obj) {
         }
     }
 
-    console.log("toR "+toReturn);
+    console.log("pathName "+pathName);
+    console.log("toReturn "+toReturn);
     return toReturn;
 }
 
