@@ -56,6 +56,8 @@ async function parseObj(obj) {
         let options = "";
         let params = JSON.stringify(JSON.stringify(obj));
 
+        toReturn = `/dash/.test(pathName)`;
+
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
