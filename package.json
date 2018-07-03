@@ -6,7 +6,7 @@
   "scripts": {
     "test": "clear;nodemon;",
     "start": "pm2 start build/client.js; pm2 logs",
-    "preinstall": "npm i -g typescript;echo \n\n\nDrewDrewDrewDrewDrewDrewDrewDrewDrew\n\n\n npm i -g ts-node;echo \n\n\nDrewDrewDrewDrewDrewDrewDrewDrewDrew\n\n\n npm i -g pm2;echo \n\n\nDrewDrewDrewDrewDrewDrewDrewDrewDrew\n\n\n tsc client --outDir build;echo \n\n\nDrewDrewDrewDrewDrewDrewDrewDrewDrewpm2\n\n\n startup"
+    "preinstall": "npm i -g typescript; npm i -g ts-node; npm i -g pm2; tsc client --outDir build;pm2 startup"
   },
   "author": "Andrew Brantley",
   "license": "ISC",
