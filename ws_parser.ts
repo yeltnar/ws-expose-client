@@ -59,6 +59,7 @@ async function parseObj(obj) {
         try{ 
             toReturn = await runShell(toExec, options, params);
         }catch(e){
+            toReturn = e.toString();
             obj.errors.runShell = e;
             console.error(e);
         }
