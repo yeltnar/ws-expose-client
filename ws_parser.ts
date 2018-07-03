@@ -47,6 +47,19 @@ async function parseObj(obj) {
         }
     }
 
+    if ( /dash/.test(pathName) ) {
+
+        let toExec = "ts-node "+serverless_folder+"template.ts"
+        let options = "";
+        let params = JSON.stringify(JSON.stringify(obj));
+
+        try{ 
+            toReturn = await runShell(toExec, options, params);
+        }catch(e){
+            console.error(e);
+        }
+    }
+
     console.log("toR "+toReturn);
     return toReturn;
 }
