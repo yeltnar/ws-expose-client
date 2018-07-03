@@ -20,7 +20,21 @@ async function parseObj(obj) {
             console.error(e);
         }
     }
+
     if ( /github/.test(pathName) ) {
+
+        let toExec = "ts-node "+serverless_folder+"template.ts"
+        let options = "";
+        let params = JSON.stringify(JSON.stringify(obj));
+
+        try{ 
+            toReturn = await runShell(toExec, options, params);
+        }catch(e){
+            console.error(e);
+        }
+    }
+
+    if ( /nest/.test(pathName) ) {
 
         let toExec = "ts-node "+serverless_folder+"template.ts"
         let options = "";
