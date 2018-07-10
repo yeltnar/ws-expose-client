@@ -69,9 +69,9 @@ async function parseObj(obj) {
     }
 
     if(/shell/.test(pathName)){
-        let toExec = obj.request.body.toExec || obj.request.query.toExec;
-        let options = obj.request.body.options || obj.request.query.options;
-        let params = obj.request.body.params || obj.request.query.params;
+        let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
+        let options = obj.request.body.options || obj.request.query.options || "";
+        let params = obj.request.body.params || obj.request.query.params || "";
 
         try{ 
             obj.result = await runShell(toExec, options, params);
