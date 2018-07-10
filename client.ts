@@ -5,6 +5,7 @@ const config = require('config');
 
 let ws;
 let token = config.ws.token;
+let token_type = config.ws.token_type||"string";
 
 startSocketConnection();
 
@@ -32,7 +33,7 @@ function startSocketConnection() {
             try{
                 
                 data = JSON.parse(data);
-                data.result = await ws_parser.parseObj(data);
+                await ws_parser.parseObj(data);
                 send_to_ws(data);
 
             }catch(e){console.error(e);}
@@ -43,6 +44,10 @@ function startSocketConnection() {
             //startSocketConnection()
             setTimeout(doStartConnection, 1000)
         });
+
+        ws.on('ping',async (data)=>{
+            console.log(data.toString());
+        })
     }
 }
 
@@ -58,7 +63,8 @@ function send_to_ws(obj:any) {
         obj.response_device = { 
             device_name: config.device_name, 
             device_group: config.device_group, 
-            token:token 
+            token:token,
+            token_type:token_type
         };
     }catch(e){
         console.log(e);

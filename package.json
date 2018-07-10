@@ -6,8 +6,10 @@
   "scripts": {
     "test": "clear;nodemon;",
     "start": "pm2 start build/client.js; pm2 logs",
-    "update": "pm2 stop client;pm2 restart client; pm2 logs",
-    "preinstall": "npm i -g typescript; npm i -g ts-node; npm i -g pm2; tsc client --outDir build;pm2 startup"
+    "restart": "pm2 restart client; pm2 logs",
+    "build": "tsc client --outDir build;pm2 startup",
+    "setup": "npm i -g typescript; npm i -g ts-node; npm i -g pm2;",
+    "postinstall": "npm build;"
   },
   "author": "Andrew Brantley",
   "license": "ISC",

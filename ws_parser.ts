@@ -5,7 +5,8 @@ const serverless_folder = config.serverless_folder;
 
 async function parseObj(obj) {
     let pathName = obj.request._parsedUrl.pathname;
-    let toReturn:any = "nothing set";
+
+    console.log("parseObj with pathName of "+pathName);
 
     if ( /dash-trip-ended/.test(pathName) ) {
 
@@ -15,7 +16,7 @@ async function parseObj(obj) {
 
 
         try{ 
-            toReturn = await runShell(toExec, options, params);
+            obj.result = await runShell(toExec, options, params);
         }catch(e){
             obj.errors.runShell = e;
             console.error(e);
@@ -29,7 +30,7 @@ async function parseObj(obj) {
         let params = JSON.stringify(JSON.stringify(obj));
 
         try{ 
-            toReturn = await runShell(toExec, options, params);
+            obj.result = await runShell(toExec, options, params);
         }catch(e){
             obj.errors.runShell = e;
             console.error(e);
@@ -43,7 +44,7 @@ async function parseObj(obj) {
         let params = JSON.stringify(JSON.stringify(obj));
 
         try{ 
-            toReturn = await runShell(toExec, options, params);
+            obj.result = await runShell(toExec, options, params);
         }catch(e){
             obj.errors.runShell = e;
             console.error(e);
@@ -56,20 +57,31 @@ async function parseObj(obj) {
         let options = "";
         let params = JSON.stringify(JSON.stringify(obj));
 
-        toReturn = `error with /dash/.test(pathName)`;
+        obj.result = `error with /dash/.test(pathName)`;
 
         try{ 
-            toReturn = await runShell(toExec, options, params);
+            obj.result = await runShell(toExec, options, params);
+        }catch(e){
+            //toReturn = e.toString();
+            obj.errors.runShell = e;
+            console.error(e); 
+        }
+    }
+
+    if(/shell/.test(pathName)){
+        let toExec = obj.request.body.toExec || obj.request.query.toExec;
+        let options = obj.request.body.options || obj.request.query.options;
+        let params = obj.request.body.params || obj.request.query.params;
+
+        try{ 
+            obj.result = await runShell(toExec, options, params);
+            obj.result_only = true;
         }catch(e){
             //toReturn = e.toString();
             obj.errors.runShell = e;
             console.error(e);
         }
     }
-
-    console.log("pathName "+pathName);
-    console.log("toReturn "+toReturn);
-    return toReturn;
 }
 
 export default { parseObj }
