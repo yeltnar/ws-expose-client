@@ -52,14 +52,17 @@ async function parseObj(obj) {
 
     if ( /dash/.test(pathName) ) {
 
-        let toExec = "ts-node "+serverless_folder+"template.ts"
-        let options = "";
-        let params = JSON.stringify(JSON.stringify(obj));
+        let toExec = "ts-node template.ts"
+        //let toExec = "pwd;ls;"
+        let options = {"cwd":serverless_folder};
+        //let params = JSON.stringify(JSON.stringify(obj));
+        let params = "";
 
         obj.result = `error with /dash/.test(pathName)`;
 
         try{ 
             obj.result = await runShell(toExec, options, params);
+            obj.result_only = true;
         }catch(e){
             //toReturn = e.toString();
             obj.errors.runShell = e;
