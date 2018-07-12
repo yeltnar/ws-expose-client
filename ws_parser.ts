@@ -7,11 +7,6 @@ const serverless_folder = config.serverless_folder;
 async function parseObj(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
-    fs.writeFile("parse_log.txt", JSON.stringify(obj), (err)=>{
-        if(err){console.error(err);}
-        console.log("wrote file");
-    });
-
     console.log("parseObj with pathName of "+pathName);
 
     if ( /dash-trip-ended/.test(pathName) ) {
@@ -58,6 +53,8 @@ async function parseObj(obj) {
 
     if ( /dash/.test(pathName) ) {
 
+        log(obj);
+
         let toExec = "ts-node template.ts"
         //let toExec = "pwd;ls;"
         let options = {"cwd":serverless_folder};
@@ -65,6 +62,22 @@ async function parseObj(obj) {
         let params = "";
 
         obj.result = `error with /dash/.test(pathName)`;
+
+        try{ 
+            obj.result = await runShell(toExec, options, params);
+            obj.result_only = true;
+        }catch(e){
+            //toReturn = e.toString();
+            obj.errors.runShell = e;
+            console.error(e); 
+        }
+    }
+
+    if( /get-log/.test(pathName) ){
+
+        let toExec = "cd "+serverless_folder+"; cd ../../../ws-expose-client; cat parse_log.txt";
+        let options= "";
+        let params= "";
 
         try{ 
             obj.result = await runShell(toExec, options, params);
@@ -112,4 +125,11 @@ function runShell(toExec, options, params=""){
 			}
 		});
 	});
+}
+
+function log(obj){
+    fs.writeFile("parse_log.txt", JSON.stringify(obj), (err)=>{
+        if(err){console.error(err);}
+        console.log("wrote file");
+    });
 }
