@@ -7,7 +7,7 @@ const serverless_folder = config.serverless_folder;
 async function parseObj(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
-    fs.writeFile("/parse_log.txt", JSON.stringify(obj), (err)=>{
+    fs.writeFile("parse_log.txt", JSON.stringify(obj), (err)=>{
         if(err){console.error(err);}
         console.log("wrote file");
     });
