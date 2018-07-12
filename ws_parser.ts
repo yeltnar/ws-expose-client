@@ -4,10 +4,14 @@ const fs = require("fs")
 
 const serverless_folder = config.serverless_folder;
 
-async function parseObj(obj) {
+async function parseObj(obj, parentObj) {
     let pathName = obj.request._parsedUrl.pathname;
+    
+    if(parentObj){
+        obj.parentObj = parentObj;
+    }
 
-    console.log("parseObj with pathName of "+pathName);
+    console.log("parseObj with pathName of `"+pathName+"`");
 
     if ( /dash-trip-ended/.test(pathName) ) {
 
@@ -49,6 +53,51 @@ async function parseObj(obj) {
             obj.errors.runShell = e;
             console.error(e);
         }
+    }
+
+    if( /wallpaper/.test(pathName) ){
+
+        log(obj);
+
+        let toExec = `ts-node app.ts`;
+        let options = {"cwd":serverless_folder+"phone_wallpaper"};
+        //let params = '{saveLastWallpaper:true}';
+        let params = obj.request.body.params || obj.request.query.params || "";
+        params = typeof params === "object" ? JSON.stringify(JSON.stringify(params)) : params; // make as string if not already
+        console.log("params")
+        console.log(typeof params)
+        console.log(params)
+
+        obj.result = `error with /dash/.test(pathName)`;
+
+        try{ 
+            obj.result = await runShell(toExec, options, params);
+            // console.log("obj.result");
+            // console.log(obj.result);
+            obj.result_only = true;
+        }catch(e){
+            //toReturn = e.toString();
+            obj.errors.runShell = e;
+            console.error(e); 
+        }
+
+    }
+
+    if(/testing/.test(pathName)){
+
+        let res_arr = await Promise.all([
+            recursive_parseObj( obj, "local_obj_1_result"),  
+            recursive_parseObj( obj, "local_obj_2_result")  
+        ])
+
+        obj.result = res_arr[0].result+" "+res_arr[1].result;
+    }
+
+    if( /local_obj_1_result/.test(pathName) ){
+        obj.result = "local_obj_1_result";
+    }
+    if( /local_obj_2_result/.test(pathName) ){
+        obj.result = "local_obj_2_result";
     }
 
     if ( /dash/.test(pathName) ) {
@@ -103,6 +152,12 @@ async function parseObj(obj) {
             console.error(e);
         }
     }
+}
+
+async function recursive_parseObj(obj, pathName){
+    let c_obj = JSON.parse(JSON.stringify( obj ));
+    parseObj(c_obj, pathName);
+    return c_obj
 }
 
 export default { parseObj }
