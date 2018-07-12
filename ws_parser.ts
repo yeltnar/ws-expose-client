@@ -1,10 +1,16 @@
 const config = require('config');
 const {exec} = require("child_process")
+const fs = require("fs")
 
 const serverless_folder = config.serverless_folder;
 
 async function parseObj(obj) {
     let pathName = obj.request._parsedUrl.pathname;
+
+    fs.writeFile("/parse_log.txt", JSON.stringify(obj), (err)=>{
+        if(err){console.error(err);}
+        console.log("wrote file");
+    });
 
     console.log("parseObj with pathName of "+pathName);
 

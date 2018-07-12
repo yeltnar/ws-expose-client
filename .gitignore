@@ -2,3 +2,4 @@ config/local.json
 node_modules
 build
 log.json
+parse_log.txt
