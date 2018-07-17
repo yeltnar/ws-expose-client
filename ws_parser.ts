@@ -2,7 +2,7 @@ const config = require('config');
 const {exec} = require("child_process")
 const fs = require("fs")
 
-const serverless_folder = config.serverless_folder;
+const serverless_folder = config.serverless_folder; // serverless_folder has the `/` at the end
 
 async function parseObj(obj, parentObj) {
     let pathName = obj.request._parsedUrl.pathname;
@@ -83,15 +83,15 @@ async function parseObj(obj, parentObj) {
 
     }
 
-    if(/testing/.test(pathName)){
+    // if(/testing/.test(pathName)){
 
-        let res_arr = await Promise.all([
-            recursive_parseObj( obj, "local_obj_1_result"),  
-            recursive_parseObj( obj, "local_obj_2_result")  
-        ])
+    //     let res_arr = await Promise.all([
+    //         recursive_parseObj( obj, "local_obj_1_result"),  
+    //         recursive_parseObj( obj, "local_obj_2_result")  
+    //     ])
 
-        obj.result = res_arr[0].result+" "+res_arr[1].result;
-    }
+    //     obj.result = res_arr[0].result+" "+res_arr[1].result;
+    // }
 
     if( /local_obj_1_result/.test(pathName) ){
         obj.result = "local_obj_1_result";
@@ -100,13 +100,13 @@ async function parseObj(obj, parentObj) {
         obj.result = "local_obj_2_result";
     }
 
-    if ( /dash/.test(pathName) ) {
+    if ( /dash/.test(pathName) || /obd/.test(pathName) ) {
 
         log(obj);
 
         let toExec = "ts-node template.ts"
         //let toExec = "pwd;ls;"
-        let options = {"cwd":serverless_folder};
+        let options = {"cwd":serverless_folder+"obd"};
         //let params = JSON.stringify(JSON.stringify(obj));
         let params = "";
 
