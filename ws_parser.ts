@@ -100,7 +100,7 @@ async function parseObj(obj, parentObj) {
         obj.result = "local_obj_2_result";
     }
 
-    if ( /dash/.test(pathName) || /obd/.test(pathName) ) {
+    if ( /obd/.test(pathName) ) {
 
         log(obj);
 
