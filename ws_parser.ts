@@ -104,11 +104,14 @@ async function parseObj(obj, parentObj) {
 
         log(obj);
 
+        fs.writeFileSync(serverless_folder+"obd/data.json", JSON.stringify(obj));
+
         let toExec = "ts-node template.ts"
         //let toExec = "pwd;ls;"
         let options = {"cwd":serverless_folder+"obd"};
-        //let params = JSON.stringify(JSON.stringify(obj));
+        //let options = "";
         let params = "";
+        //let params = "";
 
         obj.result = `error with /dash/.test(pathName)`;
 
@@ -138,6 +141,21 @@ async function parseObj(obj, parentObj) {
         }
     }
 
+    if ( /lights/.test(pathName) ) {
+
+        let toExec = "ts-node "+serverless_folder+"lights/lights.ts"
+        let options = "";
+        let params = JSON.stringify(JSON.stringify(obj));
+
+        try{ 
+            obj.result = await runShell(toExec, options, params);
+            obj.result_only=true;
+        }catch(e){
+            obj.errors.runShell = e;
+            console.error(e);
+        }
+    }
+
     if(/shell/.test(pathName)){
         let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
         let options = obj.request.body.options || obj.request.query.options || "";
@@ -151,6 +169,18 @@ async function parseObj(obj, parentObj) {
             obj.errors.runShell = e;
             console.error(e);
         }
+    }
+
+    if(/oauth\/automatic/.test(pathName)){ // oauth/automatic
+        console.log( "got it" );
+        obj.result = "got it";
+        obj.result_only = true;
+        fs.writeFileSync( "t.json", JSON.stringify(obj) );
+    }
+
+    // leave at end of function 
+    if( !obj.result ){
+
     }
 }
 
@@ -171,10 +201,10 @@ function runShell(toExec, options, params=""){
 		exec(toExec, options, (err, stdout, stderr)=>{
 			if(err){
 				console.error("run shell err");
-				reject(err);
+				reject({err,stderr});
 			}if(stderr){
 				console.error("run shell stderr");
-				reject(stderr);
+				reject({err,stderr});
 			}else{
 				resolve(stdout);
 			}

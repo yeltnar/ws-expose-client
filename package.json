@@ -7,7 +7,7 @@
     "test": "clear;nodemon;",
     "start": "pm2 start build/client.js; pm2 logs",
     "restart": "pm2 restart client; pm2 logs",
-    "build": "tsc client --outDir build; date > build/date.txt",
+    "build": "mv build old_build;tsc client --outDir build; date > build/date.txt",
     "setup": "npm i -g typescript; npm i -g ts-node; npm i -g pm2;",
     "postinstall": "npm build;"
   },
