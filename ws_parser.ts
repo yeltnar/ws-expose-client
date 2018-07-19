@@ -1,6 +1,7 @@
 const config = require('config');
 const {exec} = require("child_process")
 const fs = require("fs")
+const uuidv4 = require('uuid/v4');
 
 const serverless_folder = config.serverless_folder; // serverless_folder has the `/` at the end
 
@@ -104,20 +105,20 @@ async function parseObj(obj, parentObj) {
 
         log(obj);
 
-        fs.writeFileSync(serverless_folder+"obd/data.json", JSON.stringify(obj));
+        let data_file_location = serverless_folder+"obd/data_"+uuidv4()+".json";
 
-        let toExec = "ts-node template.ts"
-        //let toExec = "pwd;ls;"
+        fs.writeFileSync(data_file_location, JSON.stringify(obj));
+
+        let toExec = 'ts-node obd.ts "'+data_file_location+'"';
         let options = {"cwd":serverless_folder+"obd"};
-        //let options = "";
         let params = "";
-        //let params = "";
 
         obj.result = `error with /dash/.test(pathName)`;
 
         try{ 
             obj.result = await runShell(toExec, options, params);
             obj.result_only = true;
+            runShell('rm "'+data_file_location+'"', options, params);
         }catch(e){
             //toReturn = e.toString();
             obj.errors.runShell = e;
