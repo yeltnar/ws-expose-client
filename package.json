@@ -10,7 +10,7 @@
     "new_build": "build old_build;mv build old_build;tsc client --outDir build; date > build/date.txt",
     "build": "tsc client --outDir build; date > build/date.txt",
     "setup": "npm i -g typescript; npm i -g ts-node; npm i -g pm2;",
-    "postinstall": "npm build;"
+    "postinstall": "npm run-script build;"
   },
   "author": "Andrew Brantley",
   "license": "ISC",
