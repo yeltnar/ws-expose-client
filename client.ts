@@ -1,4 +1,4 @@
-import ws_parser from "./ws_parser";
+import ws_parser_connector from "./ws_parser_connector";
 
 const WebSocket = require('ws');
 const config = require('config');
@@ -33,7 +33,7 @@ function startSocketConnection() {
             try{
                 
                 data = JSON.parse(data);
-                await ws_parser.parseObj(data);
+                await ws_parser_connector.startParse(data);
                 send_to_ws(data);
 
             }catch(e){console.error(e);}
