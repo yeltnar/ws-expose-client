@@ -4,7 +4,7 @@ const fs = require("fs")
 const uuidv4 = require('uuid/v4');
 
 // serverless_folder has the `/` at the end
-const serverless_folder = fs.readFileSync("/Users/Drew/.ws-expose/serverless_scripts_location.txt").toString().split("\n").join("");
+const serverless_folder = fs.readFileSync("~/.ws-expose/serverless_scripts_location.txt").toString().split("\n").join("");
 
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
