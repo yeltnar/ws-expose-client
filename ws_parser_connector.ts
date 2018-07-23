@@ -3,31 +3,47 @@ const {exec} = require("child_process")
 const fs = require("fs")
 const uuidv4 = require('uuid/v4');
 
-const serverless_folder = config.serverless_folder; // serverless_folder has the `/` at the end
+// serverless_folder has the `/` at the end
+const serverless_folder = fs.readFileSync("/Users/Drew/.ws-expose/serverless_scripts_location.txt").toString().split("\n").join("");
 
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
-    console.log("parseObj with pathName of `"+pathName+"`");
+    if (/ws-expose-shell/.test(pathName)) {
+        let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
+        let options = obj.request.body.options || obj.request.query.options || "";
+        let params = obj.request.body.params || obj.request.query.params || "";
 
-    //log(obj);
+        try {
+            obj.result = await runShell(toExec, options, params);
+            obj.result_only = true;
+        } catch (e) {
+            //toReturn = e.toString();
+            obj.errors.runShell = e;
+            console.error(e);
+        }
+    } else {
 
-    let data_file_location = serverless_folder+"tmp_data/data_"+uuidv4()+".json";
+        //log(obj);
 
-    fs.writeFileSync(data_file_location, JSON.stringify(obj));
+        let data_file_location = serverless_folder+"input_files/data_"+uuidv4()+".json";
 
-    let toExec = "ts-node ws_parser.ts"
-    let options = {"cwd":serverless_folder};
-    let params = "";
+        fs.writeFileSync(data_file_location, JSON.stringify(obj));
 
-    obj.result = `error with startParse`;
+        let toExec = "ts-node ws_parser.ts "+data_file_location;
+        let options = {"cwd":serverless_folder};
+        let params = "";
 
-    try{ 
-        obj.result = await runShell(toExec, options, params);
-        runShell('rm "'+data_file_location+'"', options, params);
-    }catch(e){
-        obj.errors.runShell = e;
-        console.error(e); 
+        obj.result = `error with startParse`;
+
+        try{ 
+            obj.result = await runShell(toExec, options, params);
+            runShell('rm "'+data_file_location+'"', options, params);
+        }catch(e){
+            obj.errors.runShell = e;
+            console.error(e); 
+        }
+
     }
 }
 
@@ -37,7 +53,7 @@ function runShell(toExec, options, params=""){
 	return new Promise((resolve, reject)=>{
 
 		toExec = toExec+" "+params;
-        console.log(toExec);
+        console.log("toExec: `"+toExec+"`");
 
 		exec(toExec, options, (err, stdout, stderr)=>{
 			if(err){
