@@ -53,6 +53,9 @@ async function startParse(obj) {
             runShell('rm "'+data_file_location+'"', options, params);
         }catch(e){
             obj.errors.runShell = e;
+            obj.errors.toExec = toExec;
+            obj.errors.options = options;
+            obj.errors.params = params;
             console.error(e); 
         }
 
