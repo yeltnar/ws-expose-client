@@ -38,7 +38,14 @@ async function startParse(obj) {
 
         //log(obj);
 
-        let data_file_location = serverless_folder+"input_files/data_"+uuidv4()+".json";
+        let data_file_folder = serverless_folder+"input_files/"+getDateStr();
+
+        if (!fs.existsSync(data_file_folder)){
+            fs.mkdirSync(data_file_folder);
+            fs.writeFile(data_file_folder+"/.gitignore", "*", ()=>{})
+        }
+
+        let data_file_location = data_file_folder+"/data_"+uuidv4()+".json";
 
         fs.writeFileSync(data_file_location, JSON.stringify(obj));
 
@@ -50,7 +57,7 @@ async function startParse(obj) {
 
         try{ 
             obj.result = await runShell(toExec, options, params);
-            runShell('rm "'+data_file_location+'"', options, params);
+            //runShell('rm "'+data_file_location+'"', options, params);
         }catch(e){
             obj.errors.runShell = e;
             obj.errors.toExec = toExec;
@@ -89,4 +96,9 @@ function log(obj){
         if(err){console.error(err);}
         console.log("wrote file");
     });
+}
+
+function getDateStr(){
+    const d = new Date();
+    return d.getMonth()+"_"+d.getDate()+"_"+d.getFullYear();
 }
