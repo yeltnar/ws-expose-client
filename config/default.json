@@ -1,7 +1,12 @@
 {
+    "device_name":"default_name",
+    "device_group":"default_groups",
     "ws":{
         "local_url":"ws://127.0.0.1:3000/",
-        "public_url":"ws://ws-expose.mybluemix.net/",
-        "url":"ws://ws-expose.mybluemix.net/"
+        "public_url":"ws://my-ws-server.con/",
+        "url":"ws://my-ws-server.con/",
+        "token":"enter token here",
+        "token_type":"regex",
+        "group":"first_test_group"
     }
 }
