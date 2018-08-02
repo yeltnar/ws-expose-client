@@ -42,39 +42,46 @@ async function startParse(obj) {
         //log(obj);
 
         let dateStr = getDateStr()
+        let uuid = uuidv4()
 
         let data_file_folder = serverless_folder+"input_files/"+dateStr;
+        let out_files_folder = serverless_folder+"output_files/";
 
         if (!fs.existsSync(data_file_folder)){
             fs.mkdirSync(data_file_folder);
             fs.writeFile(data_file_folder+"/.gitignore", "*", ()=>{})
         }
 
-        let uuid = uuidv4()
+        if (!fs.existsSync(out_files_folder)){
+            fs.mkdirSync(out_files_folder);
+            fs.writeFile(data_file_folder+"/.gitignore", "*", ()=>{})
+        }
 
         let data_file_location = data_file_folder+"/data_"+uuid+".json";
 
+        let out_file_folder = out_files_folder+dateStr
+        let out_file_location = out_file_folder+"/data_"+uuid;
+
         fs.writeFileSync(data_file_location, JSON.stringify(obj));
 
-        let toExec = "ts-node ws_parser.ts "+data_file_location+" "+uuid;
+        let toExec = "ts-node ws_parser.ts "+data_file_location+' data_'+uuid+' '+out_file_folder;
         let options = {"cwd":serverless_folder};
         let params = "";
 
         obj.result = `error with startParse`;
 
+        console.log('hello')
+
         try{ 
             obj.result_console = await runShell(toExec, options, params);
             obj.result = obj.result_console; // default value
 
-            let out_file_folder = serverless_folder+"output_files/"+dateStr
-            let out_file_location = out_file_folder+"/data_"+uuid+".json";
-
             try{
 
-                obj.result = JSON.parse(fs.readFileSync( out_file_location ).toString());
+                obj.result = fs.readFileSync( out_file_location ).toString();
                 console.log({"no error":"response file",out_file_location})
             }catch(e){
-                console.log({"err":"response file not read",out_file_location})
+                console.log({"err":"response file not read",uuid,e})
             }
 
             //runShell('rm "'+data_file_location+'"', options, params);
