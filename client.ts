@@ -16,6 +16,7 @@ function startSocketConnection() {
     function doStartConnection(){
 
         try{
+            console.log("attempting "+config.ws.url+" "+(new Date().toString()));
             ws = new WebSocket(config.ws.url);
         }catch( e ){
             doStartConnection()
@@ -40,7 +41,7 @@ function startSocketConnection() {
         });
 
         ws.on('close', () => {
-            console.log('disconnected '+(new Date().toString()));
+            console.log("disconnected "+config.ws.url+" "+(new Date().toString()));
             //startSocketConnection()
             setTimeout(doStartConnection, 1000)
         });
