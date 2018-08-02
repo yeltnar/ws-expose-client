@@ -58,6 +58,10 @@ async function startParse(obj) {
         try{ 
             obj.result = await runShell(toExec, options, params);
             //runShell('rm "'+data_file_location+'"', options, params);
+
+            if(/result_only/.test(pathName)){
+                obj.result_only = true;
+            }
         }catch(e){
             obj.errors.runShell = e;
             obj.errors.toExec = toExec;
