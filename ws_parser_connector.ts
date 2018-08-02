@@ -69,6 +69,7 @@ async function startParse(obj) {
             try{
 
                 obj.result = JSON.parse(fs.readFileSync( out_file_location ).toString());
+                console.log({"no error":"response file",out_file_location})
             }catch(e){
                 console.log({"err":"response file not read",out_file_location})
             }
