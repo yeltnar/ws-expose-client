@@ -28,7 +28,10 @@ async function startParse(obj) {
 
         try {
             obj.result = await runShell(toExec, options, params);
-            obj.result_only = true;
+            
+            if(/result_only/.test(pathName)){
+                obj.result_only = true;
+            }
         } catch (e) {
             //toReturn = e.toString();
             obj.errors.runShell = e;
