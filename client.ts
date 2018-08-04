@@ -34,6 +34,7 @@ function startSocketConnection() {
             try{
                 
                 data = JSON.parse(data);
+                setDeviceInfo(data);
                 await ws_parser_connector.startParse(data);
                 send_to_ws(data);
 
@@ -58,6 +59,15 @@ function send_to_ws(obj:any) {
         throw "send_to_ws obj must be an object";
     }
 
+    setDeviceInfo(obj);
+
+    ws.send(JSON.stringify(obj));
+}
+
+function setDeviceInfo(obj){
+
+    console.log(setDeviceInfo);
+
     try{
         obj.response_device = obj.response_device || {};
 
@@ -71,5 +81,6 @@ function send_to_ws(obj:any) {
         console.log(e);
     }
 
-    ws.send(JSON.stringify(obj));
+    return obj;
+
 }
