@@ -70,8 +70,6 @@ async function startParse(obj) {
 
         obj.result = `error with startParse`;
 
-        console.log('hello')
-
         try{ 
             obj.result_console = await runShell(toExec, options, params);
             obj.result = obj.result_console; // default value
