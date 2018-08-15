@@ -20,6 +20,8 @@ const serverless_folder = (()=>{
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
+    console.log("pathName - "+pathName);
+
     let query_body={};
     for(let k in obj.request.query){
         query_body[k] = obj.request.query[k];
