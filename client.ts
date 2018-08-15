@@ -39,6 +39,7 @@ function startSocketConnection() {
                 send_to_ws(data);
 
             }catch(e){console.error(e);}
+            console.log("");// for new line
         });
 
         ws.on('close', () => {
@@ -65,8 +66,6 @@ function send_to_ws(obj:any) {
 }
 
 function setDeviceInfo(obj){
-
-    console.log(setDeviceInfo);
 
     try{
         obj.response_device = obj.response_device || {};
