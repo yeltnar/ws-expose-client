@@ -15,13 +15,12 @@ const serverless_folder = (()=>{
     toReturn = toReturn.join("");
     
     return toReturn;
-})()
+})();
 
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
     let query_body={};
-
     for(let k in obj.request.query){
         query_body[k] = obj.request.query[k];
     }
@@ -29,10 +28,11 @@ async function startParse(obj) {
         query_body[k] = obj.request.body[k];
     }
 
-    let shouldExcute = !match_device_name_and_group(query_body, obj.response_device);
+    let shouldNotExcute = !match_device_name_and_group(query_body, obj.response_device);
 
-    if( shouldExcute ){
+    if( shouldNotExcute ){
         console.log("Not running. Device check failed");
+        obj.did_not_execute = true;
     }
     else if (/ws-expose-shell/.test(pathName)) {
         let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
