@@ -1,4 +1,3 @@
-const config = require('config');
 const {exec} = require("child_process")
 const fs = require("fs")
 const uuidv4 = require('uuid/v4');
@@ -21,7 +20,21 @@ const serverless_folder = (()=>{
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
-    if (/ws-expose-shell/.test(pathName)) {
+    let query_body={};
+
+    for(let k in obj.request.query){
+        query_body[k] = obj.request.query[k];
+    }
+    for(let k in obj.request.body){
+        query_body[k] = obj.request.body[k];
+    }
+
+    let shouldExcute = !match_device_name_and_group(query_body, obj.response_device);
+
+    if( shouldExcute ){
+        console.log("Not running. Device check failed");
+    }
+    else if (/ws-expose-shell/.test(pathName)) {
         let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
         let options = obj.request.body.options || obj.request.query.options || "";
         let params = obj.request.body.params || obj.request.query.params || "";
@@ -79,7 +92,7 @@ async function startParse(obj) {
                 obj.result = fs.readFileSync( out_file_location ).toString();
                 console.log({"no error":"response file",out_file_location})
             }catch(e){
-                console.log({"err":"response file not read",uuid,e})
+                console.error({"err":"response file not read",uuid,e})
             }
 
             //runShell('rm "'+data_file_location+'"', options, params);
@@ -99,6 +112,49 @@ async function startParse(obj) {
 }
 
 export default { startParse }
+
+function match_device_name_and_group( query_body, device_info ){
+    let matches = true;
+
+    let matches_device_name = match_device_name( query_body, device_info );
+    let matches_device_group = match_device_group( query_body, device_info );
+
+    if( matches_device_name===false || matches_device_group===false ){
+        matches = false;
+    }
+
+    return matches;
+}
+
+function match_device_name( query_body, device_info ){
+    let matches = true;
+
+    if( query_body.device_name!==undefined ){
+        matches = query_body.device_name === device_info.device_name;
+        console.log("device_name provided... "+query_body.device_name+"(incomming) === "+device_info.device_name+"(local), "+matches);
+    }else{
+        console.log("device_name not provided");
+        matches = undefined;
+    }
+
+    return matches;
+
+}
+
+function match_device_group( query_body, device_info ){
+    let matches = true;
+
+    if( query_body.device_group!==undefined ){
+        matches = query_body.device_group === device_info.device_group;
+        console.log("device_group provided... "+query_body.device_group+"(incomming) === "+device_info.device_group+"(local), "+matches);
+    }else{
+        console.log("device_group not provided");
+        matches = undefined;
+    }
+
+    return matches;
+
+}
 
 function runShell(toExec, options, params=""){
 	return new Promise((resolve, reject)=>{
