@@ -17,6 +17,11 @@ const serverless_folder = (()=>{
     return toReturn;
 })();
 
+const useCompiled = (()=>{
+    //return true;
+    return process.env['USER'] === 'pi';
+})();
+
 async function startParse(obj) {
     let pathName = obj.request._parsedUrl.pathname;
 
@@ -79,7 +84,15 @@ async function startParse(obj) {
 
         fs.writeFileSync(data_file_location, JSON.stringify(obj));
 
-        let toExec = "ts-node ws_parser.ts "+data_file_location+' data_'+uuid+' '+out_file_folder;
+
+        obj.useCompiled = useCompiled;
+
+        let toExec;
+        if(useCompiled === true){
+            toExec = "node build/ws_parser.js "+data_file_location+' data_'+uuid+' '+out_file_folder;
+        }else{
+            toExec = "ts-node ws_parser.ts "+data_file_location+' data_'+uuid+' '+out_file_folder;
+        }
         let options = {"cwd":serverless_folder};
         let params = "";
 
