@@ -1,6 +1,7 @@
 const {exec} = require("child_process")
 const fs = require("fs")
 const uuidv4 = require('uuid/v4');
+const parseDirect = require('serverless_scripts');
 
 // serverless_folder has the `/` at the end
 
@@ -99,7 +100,112 @@ async function startParse(obj) {
         obj.result = `error with startParse`;
 
         try{ 
-            obj.result_console = await runShell(toExec, options, params);
+            // obj.result_console = await runShell(toExec, options, params);
+            parseDirect(obj)
+            obj.result = obj.result_console; // default value
+
+            try{
+
+                obj.result = fs.readFileSync( out_file_location ).toString();
+                console.log({"no error":"response file",out_file_location})
+            }catch(e){
+                console.error({"err":"response file not read",uuid,e})
+            }
+
+            //runShell('rm "'+data_file_location+'"', options, params);
+
+            if(/result_only/.test(pathName)){
+                obj.result_only = true;
+            }
+        }catch(e){
+            obj.errors.runShell = e;
+            obj.errors.toExec = toExec;
+            obj.errors.options = options;
+            obj.errors.params = params;
+            console.error(e); 
+        }
+
+    }
+}
+
+async function _old_startParse(obj) {
+    let pathName = obj.request._parsedUrl.pathname;
+
+    console.log("pathName - "+pathName);
+
+    let query_body={};
+    for(let k in obj.request.query){
+        query_body[k] = obj.request.query[k];
+    }
+    for(let k in obj.request.body){
+        query_body[k] = obj.request.body[k];
+    }
+
+    let shouldNotExcute = !match_device_name_and_group(query_body, obj.response_device);
+
+    if( shouldNotExcute ){
+        console.log("Not running. Device check failed");
+        obj.did_not_execute = true;
+    }
+    else if (/ws-expose-shell/.test(pathName)) {
+        let toExec = obj.request.body.toExec || obj.request.query.toExec || "";
+        let options = obj.request.body.options || obj.request.query.options || "";
+        let params = obj.request.body.params || obj.request.query.params || "";
+
+        try {
+            obj.result = await runShell(toExec, options, params);
+            
+            if(/result_only/.test(pathName)){
+                obj.result_only = true;
+            }
+        } catch (e) {
+            //toReturn = e.toString();
+            obj.errors.runShell = e;
+            console.error(e);
+        }
+    } else {
+
+        //log(obj);
+
+        let dateStr = getDateStr()
+        let uuid = uuidv4()
+
+        let data_file_folder = serverless_folder+"input_files/"+dateStr;
+        let out_files_folder = serverless_folder+"output_files/";
+
+        if (!fs.existsSync(data_file_folder)){
+            fs.mkdirSync(data_file_folder);
+            fs.writeFile(data_file_folder+"/.gitignore", "*", ()=>{})
+        }
+
+        if (!fs.existsSync(out_files_folder)){
+            fs.mkdirSync(out_files_folder);
+            fs.writeFile(data_file_folder+"/.gitignore", "*", ()=>{})
+        }
+
+        let data_file_location = data_file_folder+"/data_"+uuid+".json";
+
+        let out_file_folder = out_files_folder+dateStr
+        let out_file_location = out_file_folder+"/data_"+uuid;
+
+        fs.writeFileSync(data_file_location, JSON.stringify(obj));
+
+
+        obj.useCompiled = useCompiled;
+
+        let toExec;
+        if(useCompiled === true){
+            toExec = "node build/ws_parser.js "+data_file_location+' data_'+uuid+' '+out_file_folder;
+        }else{
+            toExec = "ts-node ws_parser.ts "+data_file_location+' data_'+uuid+' '+out_file_folder;
+        }
+        let options = {"cwd":serverless_folder};
+        let params = "";
+
+        obj.result = `error with startParse`;
+
+        try{ 
+            // obj.result_console = await runShell(toExec, options, params);
             obj.result = obj.result_console; // default value
 
             try{
