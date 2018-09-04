@@ -6,13 +6,15 @@ const config = require('config');
 let ws;
 let token = config.ws.token;
 let token_type = config.ws.token_type||"string";
-let expected_ping_interval = 5*60*1000;// 5 min // time in ms
+let max_ping_interval = 2.2 *60*1000;// 3 min (2 cycles and more) // time in ms
 
 startSocketConnection();
 
 function startSocketConnection() {
     //let connectInterval = setInterval(doStartConnection, 5000)
     doStartConnection(); 
+
+    let clearResetIntervalId;
 
     function doStartConnection(){
 
@@ -29,6 +31,7 @@ function startSocketConnection() {
             //clearInterval(connectInterval);
             send_to_ws({});
             console.log("connected "+config.ws.url+" "+(new Date().toString()));
+            resetRestartTimer();
         });
 
         ws.on('message', async(data) => {
@@ -51,8 +54,27 @@ function startSocketConnection() {
 
         ws.on('ping',async (data)=>{
             console.log(data.toString());
-            // TODO reset if not pinged in 'a while'
+            resetRestartTimer();
         })
+    }
+
+    function resetRestartTimer(){
+        
+        if( clearResetIntervalId !== undefined ){
+            clearTimeout(clearResetIntervalId);
+            console.log("clear interval reset")
+        }else{
+            console.log("clear interval set")
+        }
+
+        clearResetIntervalId = setTimeout(()=>{
+            restartConnection();
+        },max_ping_interval);
+    }
+
+    function restartConnection(){
+        console.log('resetting connection')
+        ws.close();
     }
 }
 
