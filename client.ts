@@ -6,6 +6,7 @@ const config = require('config');
 let ws;
 let token = config.ws.token;
 let token_type = config.ws.token_type||"string";
+let expected_ping_interval = 5*60*1000;// 5 min // time in ms
 
 startSocketConnection();
 
@@ -50,6 +51,7 @@ function startSocketConnection() {
 
         ws.on('ping',async (data)=>{
             console.log(data.toString());
+            // TODO reset if not pinged in 'a while'
         })
     }
 }
