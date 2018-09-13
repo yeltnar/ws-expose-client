@@ -24,7 +24,8 @@ class ForkProcessContainer {
 
     command = "build/ws_parser.js";
     options = {
-            "cwd":"../serverless_scripts/"
+            "cwd":serverless_folder,
+            silent: true
         };
 
     forkProcessArr = [];
@@ -45,11 +46,41 @@ class ForkProcessContainer {
 
         return new Promise( async(resolve, reject)=>{
 
+            let result;
+            let result_console="";
+
             const sub_process = await this.get();
-            sub_process.on('message', function(m) {
-                resolve( m );
-                sub_process.disconnect();
-              });
+            
+            sub_process.on('message', (message)=>{
+                //resolve( message );
+
+                if( message===undefined ){
+                    return
+                }
+
+                if( result===undefined ){
+                    result = message;
+                }else if( Array.isArray(result) ){
+                    result.push(message);
+                }else{
+                    const arr = [];
+                    arr.push(result)
+                    arr.push(message)
+                    result = arr;
+                }
+            });
+
+            sub_process.stdout.on('data',(data)=>{
+                result_console += data.toString();
+                // console.log("result_console")
+                // console.log(result_console)
+            })
+
+            sub_process.on("exit",(m)=>{
+                console.log("sub_process exiting ");
+                resolve({result, result_console});
+            })
+
             sub_process.send( parseObj );
 
         });
@@ -63,7 +94,7 @@ class ForkProcessContainer {
     }
 
     private _getNewSubProcess(){
-        fork(this.command, [], this.options)
+        return fork(this.command, [], this.options)
     }
 
     private  get=async():Promise<any>=>{
@@ -71,6 +102,7 @@ class ForkProcessContainer {
         return new Promise((resolve, reject)=>{
 
             let gotten = this.forkProcessArr.shift() || this._getNewSubProcess();
+
             resolve(gotten);
 
             this.add();
@@ -173,14 +205,7 @@ async function startParse(obj) {
 
         try{ 
 
-
-            if( /ws_quick_run/.test(pathName) ){
-                obj.result_console = "";
-                obj.result = await fork_process_container.run( obj );
-
-                console.log("obj.result")
-                console.log(obj.result)
-            }else{
+            if( /new_process/.test(pathName) ){
 
                 obj.result_console = await runShell(toExec, options, params);
                 obj.result = obj.result_console; // default value
@@ -192,6 +217,17 @@ async function startParse(obj) {
                 }catch(e){
                     console.error({"err":"response file not read",uuid,e})
                 }
+            }else{
+                
+                if( obj.response_device ){
+                    obj.response_device.out_file_folder = out_file_folder;
+                    obj.response_device.file_name = 'data_'+uuid;
+                }
+
+                const run_result_obj = await fork_process_container.run( obj );
+
+                obj.result_console = run_result_obj.result_console;
+                obj.result = run_result_obj.result;
             }
 
             //runShell('rm "'+data_file_location+'"', options, params);
