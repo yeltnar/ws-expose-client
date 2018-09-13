@@ -22,6 +22,11 @@ const serverless_folder = (()=>{
 
 class ForkProcessContainer {
 
+    command = "build/ws_parser.js";
+    options = {
+            "cwd":"../serverless_scripts/"
+        };
+
     forkProcessArr = [];
 
     number_of_preloaded_processes = 5;
@@ -51,21 +56,21 @@ class ForkProcessContainer {
     }
 
     private add(){
-        const command = "build/ws_parser.js";
-        const options = {
-            "cwd":"../serverless_scripts/"
-        };
 
-        let sub_process = fork(command, [], options);
+        let sub_process = this._getNewSubProcess();
 
         this.forkProcessArr.push( sub_process );
+    }
+
+    private _getNewSubProcess(){
+        fork(this.command, [], this.options)
     }
 
     private  get=async():Promise<any>=>{
 
         return new Promise((resolve, reject)=>{
 
-            let gotten = this.forkProcessArr.shift();
+            let gotten = this.forkProcessArr.shift() || this._getNewSubProcess();
             resolve(gotten);
 
             this.add();
