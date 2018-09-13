@@ -63,7 +63,7 @@ class ForkProcessContainer {
 
     private  get=async()=>{
 
-        let gotten = this.forkProcessArr.pop();
+        let gotten = this.forkProcessArr.shift();
 
         if( this.forkProcessArr.length===0 ){
             await this.add();
