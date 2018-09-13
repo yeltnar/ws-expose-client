@@ -1,4 +1,6 @@
-const {exec} = require("child_process")
+import { resolve } from "dns";
+
+const {exec, fork} = require("child_process")
 const fs = require("fs")
 const uuidv4 = require('uuid/v4');
 
@@ -8,7 +10,8 @@ const serverless_folder = (()=>{
     
     const home = process.env['HOME'] || process.env['USERPROFILE'];
 
-    let toReturn=fs.readFileSync(home+"/.ws-expose/serverless_scripts_location.txt")
+    // has the slash at the end
+    let toReturn=fs.readFileSync(home+"/.ws-expose/serverless_scripts_location.txt") 
 
     toReturn = toReturn.toString()
     toReturn = toReturn.split("\n")
@@ -16,6 +19,80 @@ const serverless_folder = (()=>{
     
     return toReturn;
 })();
+
+class ForkProcessContainer {
+
+    forkProcessArr = [];
+
+    number_of_preloaded_processes = 1;
+
+    constructor(){
+
+        for( let i=0; i<this.number_of_preloaded_processes; i++ ){
+            this.add();
+
+        }
+
+        process.on("exit", this.clearAll);
+    }
+
+    public run=( parseObj ):Promise<any>=>{
+
+        return new Promise( async(resolve, reject)=>{
+
+            const sub_process = await this.get();
+            sub_process.on('message', function(m) {
+                resolve( m );
+              });
+            sub_process.send( parseObj );
+
+        });
+    }
+
+    private add(){
+        const command = "build/ws_parser.js";
+        const options = {
+            "cwd":"../serverless_scripts/"
+        };
+
+        let sub_process = fork(command, [], options);
+
+        this.forkProcessArr.push( sub_process );
+    }
+
+    private  get=async()=>{
+
+        let gotten = this.forkProcessArr.pop();
+
+        if( this.forkProcessArr.length===0 ){
+            await this.add();
+        }else{
+            this.add();
+        }
+
+        return gotten;;
+    }
+
+    private clearAll(){
+        console.log("clearAll");
+        this.forkProcessArr.forEach((cur, i, arr) => {
+            cur.disconnect();
+        });
+    }
+}
+
+
+const fork_process_container = new ForkProcessContainer();
+
+// test funct
+const test=()=>{
+
+    //let parseObj = fs.readFileSync("");
+    //fork_process_container.run( {"connection":{"preferedResponseName":null},"request":{"_readableState":{"objectMode":false,"highWaterMark":16384,"buffer":{"head":null,"tail":null,"length":0},"length":0,"pipes":null,"pipesCount":0,"flowing":null,"ended":false,"endEmitted":false,"reading":false,"sync":true,"needReadable":false,"emittedReadable":false,"readableListening":false,"resumeScheduled":false,"destroyed":false,"defaultEncoding":"utf8","awaitDrain":0,"readingMore":true,"decoder":null,"encoding":null},"readable":true,"domain":null,"_events":{},"_eventsCount":0,"httpVersionMajor":1,"httpVersionMinor":1,"httpVersion":"1.1","complete":false,"headers":{"host":"ws-expose.mybluemix.net","user-agent":"PostmanRuntime/6.4.1","$wscs":"ECDHE-RSA-AES256-GCM-SHA384","$wsis":"true","$wsra":"66.25.244.159","$wssc":"https","$wssn":"ws-expose.mybluemix.net","$wssp":"443","accept":"*/*","accept-encoding":"gzip, deflate","cache-control":"no-transform","content-type":"application/json","via":"1.1 BwAAAOvu50I-","x-b3-spanid":"1f28132c99daaed0","x-b3-traceid":"1f28132c99daaed0","x-cf-applicationid":"e68f5516-a561-42c7-ac49-af54fea27ed3","x-cf-instanceid":"a971c0ef-c5b4-4164-5bd1-1fc0","x-cf-instanceindex":"0","x-client-ip":"66.25.244.159","x-forwarded-for":"66.25.244.159, 10.142.73.6","x-forwarded-proto":"https","x-global-transaction-id":"825257359","x-request-start":"1536814650803","x-vcap-request-id":"b4c5df8b-5ea0-4ede-6906-149f1117a082"},"rawHeaders":["Host","ws-expose.mybluemix.net","User-Agent","PostmanRuntime/6.4.1","$wscs","ECDHE-RSA-AES256-GCM-SHA384","$wsis","true","$wsra","66.25.244.159","$wssc","https","$wssn","ws-expose.mybluemix.net","$wssp","443","Accept","*/*","Accept-Encoding","gzip, deflate","Cache-Control","no-transform","Content-Type","application/json","Via","1.1 BwAAAOvu50I-","X-B3-Spanid","1f28132c99daaed0","X-B3-Traceid","1f28132c99daaed0","X-Cf-Applicationid","e68f5516-a561-42c7-ac49-af54fea27ed3","X-Cf-Instanceid","a971c0ef-c5b4-4164-5bd1-1fc0","X-Cf-Instanceindex","0","X-Client-Ip","66.25.244.159","X-Forwarded-For","66.25.244.159, 10.142.73.6","X-Forwarded-Proto","https","X-Global-Transaction-Id","825257359","X-Request-Start","1536814650803","X-Vcap-Request-Id","b4c5df8b-5ea0-4ede-6906-149f1117a082"],"trailers":{},"rawTrailers":[],"upgrade":false,"url":"/?token=hello&device_name=mac","method":"GET","statusCode":null,"statusMessage":null,"_consuming":false,"_dumped":false,"baseUrl":"/v1/ping/sub_parser","originalUrl":"/v1/ping/sub_parser?token=hello&device_name=mac","_parsedUrl":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":"?token=hello&device_name=mac","query":"token=hello&device_name=mac","pathname":"/v1/ping/sub_parser","path":"/v1/ping/sub_parser?token=hello&device_name=mac","href":"/v1/ping/sub_parser?token=hello&device_name=mac","_raw":"/v1/ping/sub_parser?token=hello&device_name=mac"},"params":{"0":"ping/sub_parser"},"query":{"token":"hello","device_name":"mac"},"body":{}},"errors":{},"date":"2018-09-13T04:57:30.803Z","send_to_device":{"uuid":"9251538d-f587-4ce1-bdd1-c0951df86686","index":1},"response_device":{"device_name":"mac","device_group":"test_group","token":"hello","token_type":"regex"}} );
+}
+test();
+
+//const doParseObj = require("../serverless_scripts/");
 
 const useCompiled = (()=>{
     //return true;
@@ -99,15 +176,26 @@ async function startParse(obj) {
         obj.result = `error with startParse`;
 
         try{ 
-            obj.result_console = await runShell(toExec, options, params);
-            obj.result = obj.result_console; // default value
 
-            try{
 
-                obj.result = fs.readFileSync( out_file_location ).toString();
-                console.log({"no error":"response file",out_file_location})
-            }catch(e){
-                console.error({"err":"response file not read",uuid,e})
+            if( /ws_quick_run/.test(pathName) ){
+                obj.result_console = "";
+                obj.result = await fork_process_container.run( obj );
+
+                console.log("obj.result")
+                console.log(obj.result)
+            }else{
+
+                obj.result_console = await runShell(toExec, options, params);
+                obj.result = obj.result_console; // default value
+
+                try{
+
+                    obj.result = fs.readFileSync( out_file_location ).toString();
+                    console.log({"no error":"response file",out_file_location})
+                }catch(e){
+                    console.error({"err":"response file not read",uuid,e})
+                }
             }
 
             //runShell('rm "'+data_file_location+'"', options, params);
