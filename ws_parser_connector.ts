@@ -24,7 +24,7 @@ class ForkProcessContainer {
 
     forkProcessArr = [];
 
-    number_of_preloaded_processes = 1;
+    number_of_preloaded_processes = 5;
 
     constructor(){
 
