@@ -61,17 +61,17 @@ class ForkProcessContainer {
         this.forkProcessArr.push( sub_process );
     }
 
-    private  get=async()=>{
+    private  get=async():Promise<any>=>{
 
-        let gotten = this.forkProcessArr.shift();
+        return new Promise((resolve, reject)=>{
 
-        if( this.forkProcessArr.length===0 ){
-            await this.add();
-        }else{
+            let gotten = this.forkProcessArr.shift();
+            resolve(gotten);
+
             this.add();
-        }
+        });
 
-        return gotten;;
+        
     }
 
     private clearAll(){
