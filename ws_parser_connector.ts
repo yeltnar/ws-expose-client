@@ -219,6 +219,12 @@ async function startParse(obj) {
                 }
             }else{
 
+                
+                if( obj.response_device ){
+                    obj.response_device.out_file_folder = out_file_folder;
+                    obj.response_device.file_name = 'data_'+uuid;
+                }
+
                 const run_result_obj = await fork_process_container.run( obj );
 
                 obj.result_console = run_result_obj.result_console;
