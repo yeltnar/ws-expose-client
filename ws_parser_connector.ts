@@ -123,7 +123,7 @@ class ForkProcessContainer {
 const fork_process_container = new ForkProcessContainer();
 
 const useCompiled = (()=>{
-    return true;
+    //return true;
     return process.env['USER'] === 'pi';
 })();
 
@@ -218,7 +218,6 @@ async function startParse(obj) {
                     console.error({"err":"response file not read",uuid,e})
                 }
             }else{
-
                 
                 if( obj.response_device ){
                     obj.response_device.out_file_folder = out_file_folder;
