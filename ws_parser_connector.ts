@@ -55,7 +55,7 @@ class ForkProcessContainer {
         });
     }
 
-    private add(){
+    private  add=async()=>{
 
         let sub_process = this._getNewSubProcess();
 
