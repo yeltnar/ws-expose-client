@@ -205,13 +205,7 @@ async function startParse(obj) {
 
         try{ 
 
-            if( /ws_quick_run/.test(pathName) ){
-
-                const run_result_obj = await fork_process_container.run( obj );
-
-                obj.result_console = run_result_obj.result_console;
-                obj.result = run_result_obj.result;
-            }else{
+            if( /new_process/.test(pathName) ){
 
                 obj.result_console = await runShell(toExec, options, params);
                 obj.result = obj.result_console; // default value
@@ -223,6 +217,12 @@ async function startParse(obj) {
                 }catch(e){
                     console.error({"err":"response file not read",uuid,e})
                 }
+            }else{
+
+                const run_result_obj = await fork_process_container.run( obj );
+
+                obj.result_console = run_result_obj.result_console;
+                obj.result = run_result_obj.result;
             }
 
             //runShell('rm "'+data_file_location+'"', options, params);
