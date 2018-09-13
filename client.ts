@@ -62,7 +62,6 @@ function startSocketConnection() {
         
         if( clearResetIntervalId !== undefined ){
             clearTimeout(clearResetIntervalId);
-            console.log("clear interval reset")
         }else{
             console.log("clear interval set")
         }
