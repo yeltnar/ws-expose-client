@@ -107,8 +107,6 @@ class ForkProcessContainer {
 
             this.add();
         });
-
-        
     }
 
     private clearAll(){
@@ -222,6 +220,7 @@ async function startParse(obj) {
                 if( obj.response_device ){
                     obj.response_device.out_file_folder = out_file_folder;
                     obj.response_device.file_name = 'data_'+uuid;
+                    obj.response_device.git_hash = await getGitHash();
                 }
 
                 const run_result_obj = await fork_process_container.run( obj );
@@ -321,4 +320,8 @@ function log(obj){
 function getDateStr(){
     const d = new Date();
     return d.getMonth()+"_"+d.getDate()+"_"+d.getFullYear();
+}
+
+async function getGitHash(){
+    return await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"");
 }
