@@ -292,11 +292,14 @@ function match_device_group( query_body, device_info ){
 
 }
 
-function runShell(toExec, options, params=""){
+function runShell(toExec, options, params="", should_log=true){
 	return new Promise((resolve, reject)=>{
 
-		toExec = toExec+" "+params;
-        console.log("toExec: `"+toExec+"`");
+        toExec = toExec+" "+params;
+        
+        if( should_log ){
+            console.log("toExec: `"+toExec+"`");
+        }
 
 		exec(toExec, options, (err, stdout, stderr)=>{
 			if(err){
@@ -325,7 +328,13 @@ function getDateStr(){
 }
 
 async function getGitHash():Promise<string>{
-    return await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"").then((hash_str:string)=>{
-        return hash_str.split("\n").join("");
-    });
+    let toReturn = "error_getting_git_hash";
+
+    try{
+        toReturn = await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"",false).then((hash_str:string)=>{
+            return hash_str.split("\n").join("");
+        });
+    }catch(e){}
+
+    return toReturn;
 }
