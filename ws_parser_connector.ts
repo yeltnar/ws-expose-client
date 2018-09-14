@@ -71,13 +71,16 @@ class ForkProcessContainer {
             });
 
             sub_process.stdout.on('data',(data)=>{
-                result_console += data.toString();
-                // console.log("result_console")
-                // console.log(result_console)
+                let log_string = data.toString();
+                
+                process.stdout.write("child log: ");
+                process.stdout.write(log_string); // not using console.log("") because data comes with a new line
+
+                result_console += log_string;
             })
 
             sub_process.on("exit",(m)=>{
-                console.log("sub_process exiting ");
+                console.log("sub_process exiting");
                 resolve({result, result_console});
             })
 
