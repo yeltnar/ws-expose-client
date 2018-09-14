@@ -220,7 +220,7 @@ async function startParse(obj) {
                 if( obj.response_device ){
                     obj.response_device.out_file_folder = out_file_folder;
                     obj.response_device.file_name = 'data_'+uuid;
-                    obj.response_device.git_hash = await getGitHash();
+                    obj.response_device.serverless_scripts_git_hash = await getGitHash();
                 }
 
                 const run_result_obj = await fork_process_container.run( obj );
