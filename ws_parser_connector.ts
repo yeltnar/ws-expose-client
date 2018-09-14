@@ -107,8 +107,6 @@ class ForkProcessContainer {
 
             this.add();
         });
-
-        
     }
 
     private clearAll(){
@@ -140,9 +138,9 @@ async function startParse(obj) {
         query_body[k] = obj.request.body[k];
     }
 
-    let shouldNotExcute = !match_device_name_and_group(query_body, obj.response_device);
+    let shouldNotExecute = !match_device_name_and_group(query_body, obj.response_device);
 
-    if( shouldNotExcute ){
+    if( shouldNotExecute ){
         console.log("Not running. Device check failed");
         obj.did_not_execute = true;
     }
@@ -222,6 +220,7 @@ async function startParse(obj) {
                 if( obj.response_device ){
                     obj.response_device.out_file_folder = out_file_folder;
                     obj.response_device.file_name = 'data_'+uuid;
+                    obj.response_device.git_hash = await getGitHash();
                 }
 
                 const run_result_obj = await fork_process_container.run( obj );
@@ -244,6 +243,8 @@ async function startParse(obj) {
         }
 
     }
+
+    return obj;
 }
 
 export default { startParse }
@@ -321,4 +322,10 @@ function log(obj){
 function getDateStr(){
     const d = new Date();
     return d.getMonth()+"_"+d.getDate()+"_"+d.getFullYear();
+}
+
+async function getGitHash():Promise<string>{
+    return await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"").then((hash_str:string)=>{
+        return hash_str.split("\n").join("");
+    });
 }
