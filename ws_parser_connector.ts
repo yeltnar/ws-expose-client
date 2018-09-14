@@ -138,9 +138,9 @@ async function startParse(obj) {
         query_body[k] = obj.request.body[k];
     }
 
-    let shouldNotExcute = !match_device_name_and_group(query_body, obj.response_device);
+    let shouldNotExecute = !match_device_name_and_group(query_body, obj.response_device);
 
-    if( shouldNotExcute ){
+    if( shouldNotExecute ){
         console.log("Not running. Device check failed");
         obj.did_not_execute = true;
     }
@@ -243,6 +243,8 @@ async function startParse(obj) {
         }
 
     }
+
+    return obj;
 }
 
 export default { startParse }
@@ -322,6 +324,8 @@ function getDateStr(){
     return d.getMonth()+"_"+d.getDate()+"_"+d.getFullYear();
 }
 
-async function getGitHash(){
-    return await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"");
+async function getGitHash():Promise<string>{
+    return await runShell("git rev-parse HEAD",{"cwd":serverless_folder},"").then((hash_str:string)=>{
+        return hash_str.split("\n").join("");
+    });
 }

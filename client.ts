@@ -91,14 +91,15 @@ function send_to_ws(obj:any) {
 function setDeviceInfo(obj){
 
     try{
+
         obj.response_device = obj.response_device || {};
 
-        obj.response_device = { 
-            device_name: config.device_name, 
-            device_group: config.device_group, 
-            token:token,
-            token_type:token_type
-        };
+        obj.response_device.device_name = config.device_name;
+        obj.response_device.device_group = config.device_group;
+        obj.response_device.token = token;
+        obj.response_device.token_type = token_type;
+
+
     }catch(e){
         console.log(e);
     }
