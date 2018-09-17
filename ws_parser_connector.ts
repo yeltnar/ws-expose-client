@@ -128,15 +128,19 @@ class ForkProcessContainer {
 
     private clearAll(){
         console.log("clearAll");
-        this.forkProcessArr.forEach((cur, i, arr) => {
-            cur.disconnect();
-        });
+        if( Array.isArray(this.forkProcessArr) ){
+            this.forkProcessArr.forEach((cur, i, arr) => {
+                cur.disconnect();
+            });
+        }
     }
 
     private sendUpdateStateMsg(){
-        this.forkProcessArr.forEach((cur, i, arr) => {
-            cur.send({msg_from_ws_connector:"UPDATE_STATE"});
-        });
+        if( Array.isArray(this.forkProcessArr) ){
+            this.forkProcessArr.forEach((cur, i, arr) => {
+                cur.send({msg_from_ws_connector:"UPDATE_STATE"});
+            });
+        }
     }
 }
 
