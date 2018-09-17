@@ -22,7 +22,7 @@
       "docs/*"
     ],
     "delay": "100",
-    "exec": "ts-node client"
+    "exec": "cd ../serverless_scripts;npm run-script build;cd ../ws-expose-client/;clear;echo \"npm_test_log: make this not relative\";ts-node client" 
   },
   "dependencies": {
     "@types/node": "^10.5.1",
