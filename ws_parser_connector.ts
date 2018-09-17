@@ -32,6 +32,8 @@ class ForkProcessContainer {
 
     number_of_preloaded_processes = 5;
 
+    result_console_obj = {};
+
     constructor(){
 
         for( let i=0; i<this.number_of_preloaded_processes; i++ ){
@@ -47,40 +49,39 @@ class ForkProcessContainer {
         return new Promise( async(resolve, reject)=>{
 
             let result;
-            let result_console="";
 
             const sub_process = await this.get();
             
             sub_process.on('message', (message)=>{
                 //resolve( message );
 
-                if( message===undefined ){
-                    return
-                }
-
-                if( result===undefined ){
-                    result = message;
-                }else if( Array.isArray(result) ){
-                    result.push(message);
+                if( message.msg_from_ws_parser === "UPDATE_STATE" ){
+                    console.log("message.msg_from_ws_parser "+message.msg_from_ws_parser)
+                    this.sendUpdateStateMsg();
                 }else{
-                    const arr = [];
-                    arr.push(result)
-                    arr.push(message)
-                    result = arr;
+
+                    if( message===undefined ){
+                        return
+                    }
+
+                    if( result===undefined ){
+                        result = message;
+                    }else if( Array.isArray(result) ){
+                        result.push(message);
+                    }else{
+                        const arr = [];
+                        arr.push(result)
+                        arr.push(message)
+                        result = arr;
+                    }
                 }
             });
 
-            sub_process.stdout.on('data',(data)=>{
-                let log_string = data.toString();
-                
-                process.stdout.write("child log: ");
-                process.stdout.write(log_string); // not using console.log("") because data comes with a new line
-
-                result_console += log_string;
-            })
-
             sub_process.on("exit",(m)=>{
-                console.log("sub_process exiting");
+
+                const result_console = this.result_console_obj[sub_process.pid];
+
+                console.log("child exit "+sub_process.pid);
                 resolve({result, result_console});
             })
 
@@ -92,6 +93,19 @@ class ForkProcessContainer {
     private  add=async()=>{
 
         let sub_process = this._getNewSubProcess();
+
+        this.result_console_obj[sub_process.pid] = "";
+
+        sub_process.stdout.on('data',(data)=>{
+
+            let log_string = data.toString();
+            
+            process.stdout.write("child log "+sub_process.pid+": ");
+            process.stdout.write(log_string); // not using console.log("") because data comes with a new line
+
+            this.result_console_obj[sub_process.pid] += log_string;
+        })
+        
 
         this.forkProcessArr.push( sub_process );
     }
@@ -116,6 +130,12 @@ class ForkProcessContainer {
         console.log("clearAll");
         this.forkProcessArr.forEach((cur, i, arr) => {
             cur.disconnect();
+        });
+    }
+
+    private sendUpdateStateMsg(){
+        this.forkProcessArr.forEach((cur, i, arr) => {
+            cur.send({msg_from_ws_connector:"UPDATE_STATE"});
         });
     }
 }
